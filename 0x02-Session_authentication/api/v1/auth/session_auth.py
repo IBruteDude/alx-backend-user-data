@@ -11,6 +11,7 @@ class SessionAuth(Auth):
     """ Session authentication manager class
     """
     user_id_by_session_id = {}
+
     def create_session(self, user_id: str = None) -> str:
         """ Create a session id associated with a user id
         """
@@ -43,81 +44,10 @@ class SessionAuth(Auth):
         """
         if request is None:
             return False
-        session_id =  self.session_cookie(request)
+        session_id = self.session_cookie(request)
         if session_id is None:
             return False
         if self.user_id_for_session_id(session_id) is None:
             return False
         self.user_id_by_session_id.pop(session_id)
         return True
-        
-
-if __name__ == '__main__':
-    sa = SessionAuth()
-
-    print("{}: {}".format(type(sa.user_id_by_session_id), sa.user_id_by_session_id))
-
-    user_id = None
-    session = sa.create_session(user_id)
-    print("{} => {}: {}".format(user_id, session, sa.user_id_by_session_id))
-
-    user_id = 89
-    session = sa.create_session(user_id)
-    print("{} => {}: {}".format(user_id, session, sa.user_id_by_session_id))
-
-    user_id = "abcde"
-    session = sa.create_session(user_id)
-    print("{} => {}: {}".format(user_id, session, sa.user_id_by_session_id))
-
-    user_id = "fghij"
-    session = sa.create_session(user_id)
-    print("{} => {}: {}".format(user_id, session, sa.user_id_by_session_id))
-
-    user_id = "abcde"
-    session = sa.create_session(user_id)
-    print("{} => {}: {}".format(user_id, session, sa.user_id_by_session_id))
-
-    ###################################
-
-    user_id_1 = "abcde"
-    session_1 = sa.create_session(user_id_1)
-    print("{} => {}: {}".format(user_id_1, session_1, sa.user_id_by_session_id))
-
-    user_id_2 = "fghij"
-    session_2 = sa.create_session(user_id_2)
-    print("{} => {}: {}".format(user_id_2, session_2, sa.user_id_by_session_id))
-
-    print("---")
-
-    tmp_session_id = None
-    tmp_user_id = sa.user_id_for_session_id(tmp_session_id)
-    print("{} => {}".format(tmp_session_id, tmp_user_id))
-
-    tmp_session_id = 89
-    tmp_user_id = sa.user_id_for_session_id(tmp_session_id)
-    print("{} => {}".format(tmp_session_id, tmp_user_id))
-
-    tmp_session_id = "doesntexist"
-    tmp_user_id = sa.user_id_for_session_id(tmp_session_id)
-    print("{} => {}".format(tmp_session_id, tmp_user_id))
-
-    print("---")
-
-    tmp_session_id = session_1
-    tmp_user_id = sa.user_id_for_session_id(tmp_session_id)
-    print("{} => {}".format(tmp_session_id, tmp_user_id))
-
-    tmp_session_id = session_2
-    tmp_user_id = sa.user_id_for_session_id(tmp_session_id)
-    print("{} => {}".format(tmp_session_id, tmp_user_id))
-
-    print("---")
-
-    session_1_bis = sa.create_session(user_id_1)
-    print("{} => {}: {}".format(user_id_1, session_1_bis, sa.user_id_by_session_id))
-
-    tmp_user_id = sa.user_id_for_session_id(session_1_bis)
-    print("{} => {}".format(session_1_bis, tmp_user_id))
-
-    tmp_user_id = sa.user_id_for_session_id(session_1)
-    print("{} => {}".format(session_1, tmp_user_id))

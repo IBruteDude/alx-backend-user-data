@@ -27,7 +27,6 @@ if AUTH_TYPE is not None:
         from api.v1.auth.session_auth import SessionAuth
         auth = SessionAuth()
 
-
     @app.before_request
     def auth_handler():
         """ Auth handler function
