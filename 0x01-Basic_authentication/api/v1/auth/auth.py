@@ -16,7 +16,7 @@ class Auth:
         if path in excluded_paths or path + '/' in excluded_paths:
             return False
         for expath in excluded_paths:
-            if (expath.endswith('*') or expath.startswith('*') and
+            if ((expath.endswith('*') or expath.startswith('*')) and
                     path.find(expath.strip('*')) != -1):
                 return False
         return True
