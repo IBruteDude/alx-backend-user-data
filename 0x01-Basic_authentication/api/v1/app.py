@@ -30,7 +30,7 @@ if AUTH_TYPE is not None:
         """
         if auth is None:
             return
-        if auth.require_auth(request.path, [
+        if not auth.require_auth(request.path, [
             '/api/v1/status/',
             '/api/v1/unauthorized/',
             '/api/v1/forbidden/']

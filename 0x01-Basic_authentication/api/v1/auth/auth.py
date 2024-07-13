@@ -5,9 +5,6 @@ from typing import List, TypeVar
 from flask import request
 
 
-request.headers.get()
-
-
 class Auth:
     """ Base authentication manager class
     """
@@ -27,7 +24,9 @@ class Auth:
     def authorization_header(self, request=None) -> str:
         """ Extract the 'Authorization' header
         """
-        if 'Authorization' not in request.headers:
+        if request is None:
+            return None
+        if request.headers.get('Authorization'):
             return None
         return request.headers['Authorization']
 
