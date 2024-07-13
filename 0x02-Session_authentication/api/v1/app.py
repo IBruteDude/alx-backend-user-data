@@ -23,6 +23,10 @@ if AUTH_TYPE is not None:
     elif AUTH_TYPE == 'basic_auth':
         from api.v1.auth.basic_auth import BasicAuth
         auth = BasicAuth()
+    elif AUTH_TYPE == 'session_auth':
+        from api.v1.auth.session_auth import SessionAuth
+        auth = SessionAuth()
+
 
     @app.before_request
     def auth_handler():
@@ -33,10 +37,14 @@ if AUTH_TYPE is not None:
         if not auth.require_auth(request.path, [
             '/api/v1/status/',
             '/api/v1/unauthorized/',
-            '/api/v1/forbidden/']
-        ):
+            '/api/v1/forbidden/',
+            '/api/v1/auth_session/login/'
+        ]):
             return
-        if auth.authorization_header(request) is None:
+        if (
+            auth.authorization_header(request) is None and
+            auth.session_cookie(request) is None
+        ):
             abort(401)
         if auth.current_user(request) is None:
             abort(403)

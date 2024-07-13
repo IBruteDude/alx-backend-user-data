@@ -2,7 +2,7 @@
 """ Module of the Base of Authentication mechanisms
 """
 from typing import List, TypeVar
-from flask import request
+from os import getenv
 
 
 class Auth:
@@ -35,6 +35,13 @@ class Auth:
         """
         return None
 
+    def session_cookie(self, request=None):
+        """ Get the the cookie value of a request
+        """
+        if request is None:
+            return None
+        return request.cookies.get(getenv('SESSION_NAME'))
+
 
 if __name__ == '__main__':
     a = Auth()
@@ -51,3 +58,17 @@ if __name__ == '__main__':
     print(a.require_auth("/api/v1/users", ["/api/v1/status/"]))
     print(a.require_auth("/api/v1/users", ["/api/v1/status/",
                                            "/api/v1/stats"]))
+
+    from flask import Flask, request
+
+    auth = Auth()
+
+    app = Flask(__name__)
+
+    @app.route('/', methods=['GET'], strict_slashes=False)
+    def root_path():
+        """ Root path
+        """
+        return "Cookie value: {}\n".format(auth.session_cookie(request))
+
+    app.run(host="0.0.0.0", port="5000")
