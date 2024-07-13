@@ -19,7 +19,7 @@ class BasicAuth(Auth):
             return None
         if type(authorization_header) is not str:
             return None
-        if authorization_header[:6] == 'Basic ':
+        if authorization_header[:6] != 'Basic ':
             return None
         return authorization_header[6:]
 
@@ -81,7 +81,8 @@ class BasicAuth(Auth):
         b64_header = self.extract_base64_authorization_header(auth_header)
         header_data = self.decode_base64_authorization_header(b64_header)
         user_email, user_pwd = self.extract_user_credentials(header_data)
-        return self.user_object_from_credentials(user_email, user_pwd)
+        user = self.user_object_from_credentials(user_email, user_pwd)
+        return user
 
 
 if __name__ == '__main__':
