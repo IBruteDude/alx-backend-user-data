@@ -27,8 +27,9 @@ def authenticate_session() -> str:
         return jsonify({ "error": "wrong password" }), 401
     from api.v1.app import auth
     session_id = auth.create_session(users[0].id)
-    session[getenv('SESSION_NAME')] = session_id
-    return users[0].to_json()
+    resp = jsonify(users[0].to_json())
+    resp.set_cookie(getenv('SESSION_NAME'), session_id)
+    return resp
 
 @app_views.route('/auth_session/logout', methods=['DELETE'], strict_slashes=False)
 def logout():
