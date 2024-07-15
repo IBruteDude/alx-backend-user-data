@@ -24,10 +24,23 @@ class SessionDBAuth(SessionExpAuth):
     def user_id_for_session_id(self, session_id=None) -> str:
         """ Retrieve a session id associated with a user id before duration
         """
+        if session_id is None:
+            return None
+        
         user_sessions = UserSession.search({'session_id': session_id})
         if len(user_sessions) == 0:
             return None
-        return user_sessions[0].user_id
+        session = user_sessions[0]
+
+        if self.session_duration <= 0:
+            return getattr(session, 'created_at', None)
+        if getattr(session, 'created_at', None) is None:
+            return None
+        if session.created_at + timedelta(
+            seconds=self.session_duration
+        ) < datetime.now():
+            return None
+        return getattr(session, 'user_id', None)
 
     def destroy_session(self, request=None) -> bool:
         """ Destroy the session/Log out the current user
@@ -40,7 +53,10 @@ class SessionDBAuth(SessionExpAuth):
         session_id = self.session_cookie(request)
         if session_id is None:
             return False
-        user_sessions = UserSession.search({'session_id': session_id})
+        user_id = self.user_id_for_session_id()
+        if user_id is None:
+            return False
+        user_sessions = UserSession.search({'user_id': user_id})
         if len(user_sessions) == 0:
             return False
         user_sessions[0].remove()
