@@ -53,7 +53,7 @@ def get_logger() -> logging.Logger:
     """
     logger = logging.Logger("user_data", logging.INFO)
     stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(RedactingFormatter(PII_FIELDS))
+    stream_handler.setFormatter(RedactingFormatter(list(PII_FIELDS)))
     logger.addHandler(stream_handler)
     return logger
 
@@ -72,7 +72,7 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
         try:
             con = mysql.connector.connection.MySQLConnection(**config)
         except mysql.connector.Error as e:
-            print(e.with_traceback())
+            print(e.with_traceback(None))
     return con
 
 
@@ -92,7 +92,7 @@ def main():
     for row in rows:
         msg = ''.join([f'{k}={v};' for k, v in (zip(colnames, row))])
         logger.info(msg)
-    
+
 
 if __name__ == '__main__':
     main()
