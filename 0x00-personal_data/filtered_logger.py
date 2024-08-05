@@ -32,16 +32,11 @@ class RedactingFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         """ Redact the selected fields from the LogRecord
         """
-        redacted_message = filter_datum(
-            self.fields, self.REDACTION,
-            record.getMessage(), self.SEPARATOR
-        )
-
-        return self.FORMAT % {
-            'name': record.name,
-            'levelname': record.levelname,
-            'asctime': self.formatTime(record),
-            'message': '; '.join(redacted_message.split(';'))}
+        redacted_message = re.sub(r'=(.*?);', r'=\1; ', filter_datum(
+            self.fields, self.REDACTION, record.getMessage(), self.SEPARATOR))
+        setattr(record, 'asctime', self.formatTime(record))
+        setattr(record, 'message', redacted_message.strip())
+        return self.FORMAT % record.__dict__
 
 
 # user_data = [line for line in csv.reader(open("user_data.csv"))]
@@ -95,25 +90,25 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
-    # fields = ["password", "date_of_birth"]
-    # messages = ["name=egg;email=eggmin@eggsample.com;password=eggcellent;"
-    #             "date_of_birth=12/12/1986;",
-    #             "name=bob;email=bob@dylan.com;password=bobbycool;"
-    #             "date_of_birth=03/04/1993;"]
+    # main()
+    fields = ["password", "date_of_birth"]
+    messages = ["name=egg;email=eggmin@eggsample.com;password=eggcellent;"
+                "date_of_birth=12/12/1986;",
+                "name=bob;email=bob@dylan.com;password=bobbycool;"
+                "date_of_birth=03/04/1993;"]
 
-    # for msg in messages:
-    #     print(filter_datum(fields, 'xxx', msg, ';'))
+    for msg in messages:
+        print(filter_datum(fields, 'xxx', msg, ';'))
 
-    # #############################################################
+    #############################################################
 
-    # msg = "name=Bob;email=bob@dylan.com;ssn=000-123-0000;password=bobby2019;"
-    # log_record = logging.LogRecord("my_logger", logging.INFO,
-    #                                os.getcwd(), 56, msg, None, None)
-    # formatter = RedactingFormatter(fields=["email", "ssn", "password"])
-    # print(formatter.format(log_record))
+    msg = "name=Bob;email=bob@dylan.com;ssn=000-123-0000;password=bobby2019;"
+    log_record = logging.LogRecord("my_logger", logging.INFO,
+                                   os.getcwd(), 56, msg, None, None)
+    formatter = RedactingFormatter(fields=["email", "ssn", "password"])
+    print(formatter.format(log_record))
 
-    # #############################################################
+    #############################################################
 
     # db = get_db()
     # cursor = db.cursor()
