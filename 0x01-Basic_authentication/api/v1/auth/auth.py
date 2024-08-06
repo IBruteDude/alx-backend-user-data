@@ -2,7 +2,6 @@
 """ Module of the Base of Authentication mechanisms
 """
 from typing import List, TypeVar
-from flask import request
 
 
 class Auth:
