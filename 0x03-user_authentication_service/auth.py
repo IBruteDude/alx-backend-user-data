@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Auth module
 """
+from typing import Union
 import bcrypt
 import base64 as b64
 from uuid import uuid4
@@ -63,6 +64,43 @@ class Auth:
             return session_id
         except NoResultFound:
             return None
+
+    def get_user_from_session_id(self, session_id: str) -> Union[User, None]:
+        """Get the user associated with a specific session_id
+        """
+        try:
+            return self._db.find_user_by(session_id=session_id)
+        except NoResultFound:
+            return None
+
+    def destroy_session(self, user_id: str) -> None:
+        """Destroy the session for the specific user
+        """
+        try:
+            user = self._db.find_user_by(id=user_id)
+            user.session_id = None
+            return None
+        except NoResultFound:
+            return None
+
+    def get_reset_password_token(self, email: str) -> str:
+        """Create a password reset token
+        """
+        user = self._db.find_user_by(email=email)
+        if user is None:
+            raise ValueError
+        reset_token = _generate_uuid()
+        user.reset_token = reset_token
+        return reset_token
+
+    def update_password(self, reset_token: str, password: str) -> None:
+        """Update user password
+        """
+        user = self._db.find_user_by(reset_token=reset_token)
+        if user is None:
+            raise ValueError
+        user.hashed_password = b64.b64encode(_hash_password(password))
+        user.reset_token = None
 
 
 if __name__ == '__main__':

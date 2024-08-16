@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """App module
 """
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, redirect
 from auth import Auth
 
 
@@ -13,7 +13,7 @@ app = Flask(__name__)
 def home():
     """App home route
     """
-    return jsonify({"message": "Bienvenue"}), 200
+    return jsonify({"message": "Bienvenue"})
 
 
 @app.route('/users', methods=['POST'])
@@ -25,7 +25,7 @@ def users():
 
     try:
         AUTH.register_user(email, password)
-        return jsonify({"email": email, "message": "user created"}), 200
+        return jsonify({"email": email, "message": "user created"})
     except ValueError:
         return jsonify({"message": "email already registered"}), 400
 
@@ -43,6 +43,41 @@ def login():
     response = jsonify({"email": email, "message": "logged in"})
     response.set_cookie("session_id", session_id)
     return response
+
+
+@app.route('/sessions', methods=['DELETE'])
+def logout():
+    """App logout route
+    """
+    session_id = request.cookies.get('session_id')
+    user = AUTH.get_user_from_session_id(session_id)
+    if user is None:
+        abort(403)
+    AUTH.destroy_session(user.id)
+    return redirect('/')
+
+
+@app.route('/profile', methods=['GET'])
+def profile():
+    """App user profile route
+    """
+    session_id = request.cookies.get('session_id')
+    user = AUTH.get_user_from_session_id(session_id)
+    if user is None:
+        abort(403)
+    return jsonify({"email": user.email})
+
+
+@app.route('/reset_password', methods=['POST'])
+def get_reset_password_token():
+    """App reset token route
+    """
+    email = request.form.get("email")
+    try:
+        reset_token = AUTH.get_reset_password_token(email)
+    except ValueError:
+        abort(403)
+    return jsonify({"email": email, "reset_token": reset_token})
 
 
 if __name__ == "__main__":
