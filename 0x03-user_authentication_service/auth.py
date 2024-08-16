@@ -68,6 +68,8 @@ class Auth:
     def get_user_from_session_id(self, session_id: str) -> Union[User, None]:
         """Get the user associated with a specific session_id
         """
+        if session_id is None:
+            return None
         try:
             return self._db.find_user_by(session_id=session_id)
         except NoResultFound:
@@ -96,10 +98,12 @@ class Auth:
     def update_password(self, reset_token: str, password: str) -> None:
         """Update user password
         """
+        if reset_token is None:
+            raise ValueError
         user = self._db.find_user_by(reset_token=reset_token)
         if user is None:
             raise ValueError
-        user.hashed_password = b64.b64encode(_hash_password(password))
+        user.hashed_password = b64.b64encode(_hash_password(password)).decode()
         user.reset_token = None
 
 
