@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+"""Auth module
 """
 import bcrypt
 import base64 as b64
@@ -11,13 +11,13 @@ from user import User
 
 
 def _hash_password(password: str) -> bytes:
-    """
+    """Hash the input password with some salt
     """
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
 
 
 def _generate_uuid() -> str:
-    """
+    """Generate a stringified uuid
     """
     return str(uuid4())
 
@@ -32,7 +32,7 @@ class Auth:
         self._db = DB()
 
     def register_user(self, email: str, password: str) -> User:
-        """
+        """Register a new user with an email + password
         """
         try:
             duplicate_user = self._db.find_user_by(email=email)
@@ -43,7 +43,7 @@ class Auth:
                 b64.b64encode(_hash_password(password)).decode())
 
     def valid_login(self, email: str, password: str) -> bool:
-        """
+        """Check if login info is valid
         """
         try:
             user = self._db.find_user_by(email=email)
@@ -54,6 +54,8 @@ class Auth:
             return False
 
     def create_session(self, email: str) -> str:
+        """Create a new session for a user
+        """
         try:
             user = self._db.find_user_by(email=email)
             session_id = _generate_uuid()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+"""App module
 """
 from flask import Flask, jsonify, request, abort
 from auth import Auth
@@ -10,15 +10,15 @@ app = Flask(__name__)
 
 
 @app.route('/', methods=['GET'])
-def hello():
-    """
+def home():
+    """App home route
     """
     return jsonify({"message": "Bienvenue"}), 200
 
 
 @app.route('/users', methods=['POST'])
 def users():
-    """
+    """App user auth route
     """
     email = request.form.get("email")
     password = request.form.get("password")
@@ -32,7 +32,7 @@ def users():
 
 @app.route('/sessions', methods=['POST'])
 def login():
-    """
+    """App login route
     """
     email = request.form.get("email")
     password = request.form.get("password")

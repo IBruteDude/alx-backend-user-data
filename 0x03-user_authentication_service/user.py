@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+"""User module
 """
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import INTEGER, VARCHAR, Column
@@ -9,7 +9,7 @@ Base = declarative_base()
 
 
 class User(Base):
-    """
+    """User model class
     """
     __tablename__ = 'users'
 

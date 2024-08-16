@@ -32,7 +32,7 @@ class DB:
         return self.__session
 
     def add_user(self, email: str, hashed_password: str) -> User:
-        """
+        """Add a new user to the db
         """
         user = User(email=email, hashed_password=hashed_password)
         self._session.add(user)
@@ -40,12 +40,12 @@ class DB:
         return user
 
     def find_user_by(self, **kwargs) -> User:
-        """
+        """Search for a specific user
         """
         return self._session.query(User).filter_by(**kwargs).one()
 
     def update_user(self, user_id: int, **kwargs) -> None:
-        """
+        """Update a user with specific id
         """
         user: User = self.find_user_by(id=user_id)
         for name, value in kwargs.items():
@@ -53,7 +53,7 @@ class DB:
         self._save()
 
     def _save(self):
-        """
+        """Save the current changes to the db
         """
         self._session.commit()
         # self._session.flush()
